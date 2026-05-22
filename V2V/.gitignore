@@ -1,0 +1,35 @@
+# Build directories
+build/
+build-*/
+out/
+cmake-build-*/
+
+# IDEs
+.vscode/
+.vs/
+.idea/
+*.user
+*.sln
+*.vcxproj*
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+CMakeUserPresets.json
+_deps/
+
+# Compiled objects / binaries
+*.o
+*.obj
+*.exe
+*.out
+*.dll
+*.dylib
+*.so
+*.a
+*.lib
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
