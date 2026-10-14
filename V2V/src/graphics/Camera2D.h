@@ -69,6 +69,22 @@ public:
     /// Move position/zoom toward their targets. Call once per frame.
     void  tick(float dt);
 
+    // Pseudo-3D tilt --------------------------------------------------------
+    /// Enable/disable the tilted ("isometric / 2.5D") projection. The camera
+    /// eases between flat and tilted over `smoothing()` seconds, so toggling
+    /// looks cinematic. Flat mode (tilt 0) is byte-identical to the legacy 2D
+    /// camera and is always a safe fallback.
+    void  setTilted(bool on);
+    void  toggleTilt() { setTilted(!tilted()); }
+    bool  tilted() const { return m_targetTilt > 1.0e-3f; }
+
+    /// Current (eased) pitch in radians — 0 = top-down. For diagnostics.
+    float tilt() const { return m_tilt; }
+
+    /// Pitch applied when tilt mode is on. Clamped to [0, 75] degrees.
+    void  setTiltAngle(float degrees);
+    float tiltAngle() const { return m_tiltAngleDeg; }
+
     // Limits ----------------------------------------------------------------
     static constexpr float kMinZoom = 0.01f;
     static constexpr float kMaxZoom = 1000.0f;
@@ -83,6 +99,11 @@ private:
     glm::vec2 m_targetPos     {0.0f, 0.0f};
     float     m_targetZoom    = 1.0f;
     float     m_smoothHalfLife = 0.20f;  // 200 ms exponential ease
+
+    // Pseudo-3D tilt state.
+    float     m_tilt          = 0.0f;   // current pitch (radians), 0 = top-down
+    float     m_targetTilt    = 0.0f;   // pitch the camera eases toward
+    float     m_tiltAngleDeg  = 50.0f;  // pitch applied when tilt mode is on
 };
 
 } // namespace v2v::graphics

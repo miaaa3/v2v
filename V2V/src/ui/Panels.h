@@ -40,6 +40,7 @@ struct PanelInputs {
     float*                            vehicleSizeMultiplier = nullptr;
     bool*                             followSelected = nullptr;   // cinematic camera
     bool*                             droneMode      = nullptr;   // auto-cycling cinematic
+    bool*                             tilt3D         = nullptr;   // pseudo-3D tilt camera
     bool*                             showVehicleLights = nullptr;
     float*                            timeOfDay = nullptr;        // 0=midnight, 0.5=noon
 

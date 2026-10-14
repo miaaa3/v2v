@@ -102,10 +102,11 @@ void renderControlDock(const PanelInputs& in)
 {
     const ImGuiViewport* vp = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos (ImVec2(vp->Pos.x + 10.0f, vp->Pos.y + 102.0f),
-                             ImGuiCond_FirstUseEver);
+                             ImGuiCond_Always);
     ImGui::SetNextWindowSize(ImVec2(322.0f, vp->Size.y - 122.0f),
-                             ImGuiCond_FirstUseEver);
-    ImGui::Begin("Control Center");
+                             ImGuiCond_Always);
+    ImGui::Begin("Control Center", nullptr,
+                 ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
     const float fullW = ImGui::GetContentRegionAvail().x;
     const float colW  = (fullW - 8.0f) * 0.5f;   // 2-column grid
@@ -196,6 +197,8 @@ void renderControlDock(const PanelInputs& in)
     dockToggle("Follow Car", in.followSelected, btn2);
     ImGui::SameLine();
     dockToggle("Drone Cam",  in.droneMode,      btn2);
+    if (in.tilt3D)
+        dockToggle("3D View (T)", in.tilt3D, ImVec2(fullW, 0.0f));
     if (in.accidents) {
         if (ImGui::Button("Trigger Accident (X)", ImVec2(fullW, 30.0f)))
             in.accidents->forceTrigger();
@@ -732,13 +735,22 @@ void renderEventFeed(const PanelInputs& in)
     }
 
     {
+        // Bottom panel of the tiled right-hand column (see Vehicle Inspector).
         const ImGuiViewport* vp = ImGui::GetMainViewport();
-        ImGui::SetNextWindowPos (ImVec2(vp->Pos.x + vp->Size.x - 340.0f,
-                                        vp->Pos.y + 502.0f),
-                                 ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(ImVec2(330.0f, 230.0f), ImGuiCond_FirstUseEver);
+        const float colX   = vp->Pos.x + vp->Size.x - 340.0f;
+        const float colW   = 330.0f;
+        const float colTop = vp->Pos.y + 102.0f;
+        const float colH   = vp->Size.y - 102.0f - 12.0f;
+        const float gap    = 8.0f;
+        const float hInsp  = colH * 0.40f;
+        const float hTel   = colH * 0.36f;
+        const float yFeed  = colTop + hInsp + hTel + 2.0f * gap;
+        ImGui::SetNextWindowPos (ImVec2(colX, yFeed), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(colW, colTop + colH - yFeed),
+                                 ImGuiCond_Always);
     }
-    ImGui::Begin("Event feed");
+    ImGui::Begin("Event feed", nullptr,
+                 ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
     ImGui::TextDisabled("Live system events");
     ImGui::SameLine();
     if (ImGui::SmallButton("Clear")) g_eventFeed.clear();
@@ -842,11 +854,18 @@ void bodyLegend(const PanelInputs& in)
 void renderTelemetryPanel(const PanelInputs& in)
 {
     const ImGuiViewport* vp = ImGui::GetMainViewport();
-    ImGui::SetNextWindowPos (ImVec2(vp->Pos.x + vp->Size.x - 340.0f,
-                                    vp->Pos.y + 102.0f),
-                             ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(330.0f, 392.0f), ImGuiCond_FirstUseEver);
-    ImGui::Begin("Telemetry");
+    // Middle panel of the tiled right-hand column (see Vehicle Inspector).
+    const float colX   = vp->Pos.x + vp->Size.x - 340.0f;
+    const float colW   = 330.0f;
+    const float colTop = vp->Pos.y + 102.0f;
+    const float colH   = vp->Size.y - 102.0f - 12.0f;
+    const float gap    = 8.0f;
+    const float hInsp  = colH * 0.40f;
+    const float hTel   = colH * 0.36f;
+    ImGui::SetNextWindowPos (ImVec2(colX, colTop + hInsp + gap), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(colW, hTel),                 ImGuiCond_Always);
+    ImGui::Begin("Telemetry", nullptr,
+                 ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
     if (ImGui::CollapsingHeader("Simulation",   ImGuiTreeNodeFlags_DefaultOpen))
         bodySimulation(in);
@@ -1262,14 +1281,19 @@ void renderSelectedVehiclePanel(const PanelInputs& in)
     if (!in.engine || !in.selectedVehicleId) return;
 
     {
+        // Right-hand column, tiled into 3 fixed, non-overlapping panels:
+        //   Vehicle Inspector (top) - Telemetry (middle) - Event feed (bottom).
         const ImGuiViewport* vp = ImGui::GetMainViewport();
-        ImGui::SetNextWindowPos (ImVec2(vp->Pos.x + vp->Size.x - 360.0f,
-                                        vp->Pos.y + 102.0f),
-                                 ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(ImVec2(350.0f, vp->Size.y - 130.0f),
-                                 ImGuiCond_FirstUseEver);
+        const float colX   = vp->Pos.x + vp->Size.x - 340.0f;
+        const float colW   = 330.0f;
+        const float colTop = vp->Pos.y + 102.0f;
+        const float colH   = vp->Size.y - 102.0f - 12.0f;
+        const float hInsp  = colH * 0.40f;
+        ImGui::SetNextWindowPos (ImVec2(colX, colTop), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(colW, hInsp),  ImGuiCond_Always);
     }
-    ImGui::Begin("Vehicle Inspector");
+    ImGui::Begin("Vehicle Inspector", nullptr,
+                 ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
     int& selId = *in.selectedVehicleId;
     const auto& pool = in.engine->pool();

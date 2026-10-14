@@ -36,9 +36,9 @@ public:
 
     explicit TileLoader(int numWorkers = 4,
                         std::string urlTemplate =
-                            "https://cartodb-basemaps-a.global.ssl.fastly.net/rastertiles/voyager/{z}/{x}/{y}.png",
+                            "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                         std::string userAgent =
-                            "V2V-Simulator/0.1 (https://github.com/meryem-belmouaddine/v2v)");
+                            "V2V-Simulator/0.1 (https://github.com/miaaa3/v2v)");
     ~TileLoader();
 
     TileLoader(const TileLoader&)            = delete;

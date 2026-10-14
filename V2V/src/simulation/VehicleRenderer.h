@@ -18,8 +18,9 @@ namespace v2v::simulation {
  * GPU layout:
  *   - VBO 0 (static):  3 vertices of a unit triangle, attrib 0.
  *   - VBO 1 (dynamic): N instances of
- *         { vec2 pos, float heading, vec4 color, vec2 size }
- *     bound to attribs 1..4 with divisor=1.
+ *         { vec2 pos, float heading, vec4 color, vec2 size, vec4 fx }
+ *     bound to attribs 1..5 with divisor=1. `fx` carries the Step-2 effect
+ *     channel: x = brake, y = emergency, z = V2V glow.
  *
  * Vehicle-specific size (length, width in meters) is per-instance so each
  * vehicle type renders with its own footprint. A global `uSizeScale` uniform
@@ -37,7 +38,10 @@ public:
     bool init(const std::string& shaderDir = {});
 
     /// Upload current pool state and draw it.
-    void render(const graphics::Camera2D& camera, const VehiclePool& pool);
+    /// `timeSeconds` animates flashers / glows; `nightFactor` (0 = day,
+    /// 1 = night) drives the headlights.
+    void render(const graphics::Camera2D& camera, const VehiclePool& pool,
+                float timeSeconds, float nightFactor);
 
     /// Global zoom-dependent scale factor (default 1.0).
     void setGlobalScale(float s) { m_globalScale = s; }

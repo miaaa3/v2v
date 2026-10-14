@@ -8,7 +8,7 @@ C++20, OpenGL 3.3 Core, GLFW, GLAD (glad2), GLM, Dear ImGui, stb_image. CMake + 
 
 Required on the host:
 
-- **Python 3** — used at configure time by the GLAD generator
+- **Python 3 + jinja2** (`pip install jinja2`) — used at configure time by the GLAD generator
 - **libcurl** — used by `TileLoader` to fetch OSM raster tiles
   - macOS: shipped with the system, nothing to install
   - Linux (Debian/Ubuntu): `sudo apt install libcurl4-openssl-dev`
@@ -92,7 +92,8 @@ defaults (motorway 130, primary 80, residential 30, …).
 
 ## Notes on OSM tile usage
 
-The default `TileLoader` URL template is `https://tile.openstreetmap.org/{z}/{x}/{y}.png`,
+The default `TileLoader` URL template is `https://tile.openstreetmap.org/{z}/{x}/{y}.png`
+(CARTO's basemaps, used earlier, now require an API key),
 which is the public OSM tile server. Their [usage policy](https://operations.osmfoundation.org/policies/tiles/)
 requires a valid User-Agent (we set one), reasonable rate-limiting, and is
 unsuitable for production load — swap in a self-hosted server or a commercial

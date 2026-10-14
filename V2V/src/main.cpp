@@ -274,6 +274,7 @@ int main(int argc, char** argv) try
     float     vehicleSizeMultiplier = 1.0f;  // user-controllable in Controls panel
     bool      followSelected       = false;  // cinematic camera follow
     bool      droneMode            = false;  // auto-cycling cinematic
+    bool      camera3D             = false;  // pseudo-3D tilted camera (Step 1)
     bool      showVehicleLights    = true;   // brake + emergency lights overlay
     bool      showTrails           = true;   // cinematic ghost trails
     float     timeOfDay            = 0.50f;  // 0 = midnight, 0.5 = noon, 1 = midnight
@@ -395,6 +396,7 @@ int main(int argc, char** argv) try
                 sim.setTimeScale(std::max(0.0625f, sim.timeScale() * 0.5f));
                 break;
             case GLFW_KEY_0:     sim.setTimeScale(1.0f);       break;
+            case GLFW_KEY_T:     camera3D = !camera3D;         break;
             default: break;
         }
     });
@@ -468,6 +470,7 @@ int main(int argc, char** argv) try
             }
             camera.setTargetPosition(s_droneTarget);
         }
+        camera.setTilted(camera3D);   // pseudo-3D mode follows the UI / 'T' toggle
         camera.tick(std::min(dt, 0.1f));
         if (graphLoaded) {
             V2V_PROF("accidents/tick");
@@ -618,7 +621,10 @@ int main(int argc, char** argv) try
             vehiclesR.setGlobalScale(scale * std::max(0.5f, vehicleSizeMultiplier));
 
             V2V_PROF("render/vehicles");
-            vehiclesR.render(camera, sim.pool());
+            // Step 2: pass the clock (flashers / glow pulse) and the night
+            // factor (1 - dayCurve) so headlights come on after dark.
+            vehiclesR.render(camera, sim.pool(),
+                             static_cast<float>(now), 1.0f - dayCurve);
         }
 
         if (showLinks && graphLoaded)  { V2V_PROF("render/links"); linksR.render(camera, v2vNet, sim.pool()); }
@@ -858,6 +864,7 @@ int main(int argc, char** argv) try
             in.vehicleSizeMultiplier = &vehicleSizeMultiplier;
             in.followSelected        = &followSelected;
             in.droneMode             = &droneMode;
+            in.tilt3D                = &camera3D;
             in.showVehicleLights     = &showVehicleLights;
             in.timeOfDay             = &timeOfDay;
             static int weatherModeI = 0;
